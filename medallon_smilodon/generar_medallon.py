@@ -4,6 +4,8 @@
 Genera:
   * medallon_smilodon.stl   – malla cerrada (manifold) lista para el slicer
   * render_frontal.png      – vista frontal estilo "clay render" (PLA gris mate)
+  * render_2colores.png     – vista frontal en dos colores: base negra y relieves
+                              blancos (un único cambio de filamento a COLOR_CHANGE_Z)
 
 Dependencias:  pip install numpy shapely manifold3d trimesh matplotlib pillow scipy
 
@@ -48,7 +50,8 @@ TEXT_H = 1.2          # relieve de las letras
 TEXT_SPAN_DEG = 236   # arco que ocupa la leyenda superior
 FONT = FontProperties(family="DejaVu Sans", weight="bold")
 
-SKEL_FIELD_R = 24.6   # el esqueleto debe caber dentro de este radio
+SKEL_FIELD_R = 24.6
+COLOR_CHANGE_Z = BASE  # cambio de filamento: negro debajo, blanco encima   # el esqueleto debe caber dentro de este radio
 
 # Alturas de relieve (sobre el campo) para dar profundidad de bajorrelieve
 H_FAR = 0.8           # patas del lado lejano
@@ -332,7 +335,7 @@ def heightmap(layers, px=0.04, margin=6.0):
     return h, inside, px
 
 
-def render(h, inside, px, path, out_px=1600):
+def render(h, inside, px, path, out_px=1600, two_color=False):
     n = h.shape[0]
     hs = ndimage.gaussian_filter(h, 1.2)  # micro-bisel: aristas nítidas pero no aliased
     gy, gx = np.gradient(hs, px)
@@ -363,7 +366,11 @@ def render(h, inside, px, path, out_px=1600):
     ao = np.clip(1 - 0.55 * np.clip(ndimage.gaussian_filter(h, 18) - h, 0, None), 0.35, 1)
     ao *= np.clip(1 - 0.35 * np.clip(ndimage.gaussian_filter(h, 5) - h, 0, None), 0.5, 1)
 
-    albedo = 0.60  # PLA gris
+    if two_color:  # PLA negro hasta COLOR_CHANGE_Z, PLA blanco por encima
+        albedo = np.where(h > COLOR_CHANGE_Z + 0.01, 0.86, 0.075)
+        albedo = ndimage.gaussian_filter(albedo, 0.8)
+    else:
+        albedo = 0.60  # PLA gris
     spec = np.clip(nrm @ ((key + np.array([0, 0, 1])) / np.linalg.norm(key + [0, 0, 1])), 0, 1) ** 24
     shade = albedo * (0.80 * diff_k * lit + 0.22 * diff_f + 0.20 * ao) + 0.04 * spec * lit
     shade *= 0.85 + 0.15 * ao
@@ -392,7 +399,8 @@ def main():
     print(info)
     h, inside, px = heightmap(layers)
     render(h, inside, px, OUT / "render_frontal.png")
-    print("render: render_frontal.png")
+    render(h, inside, px, OUT / "render_2colores.png", two_color=True)
+    print("render: render_frontal.png, render_2colores.png")
 
 
 if __name__ == "__main__":

@@ -3,11 +3,12 @@
 Medallón en bajorrelieve imprimible en 3D con el esqueleto estilizado de un
 *Smilodon* (tigre dientes de sable).
 
-![Vista frontal](render_frontal.png)
+![Vista frontal en dos colores](render_2colores.png)
 
 | Archivo | Descripción |
 |---|---|
 | `medallon_smilodon.stl` | Malla cerrada (manifold), lista para el slicer |
+| `render_2colores.png` | Vista frontal en dos colores (base negra, relieves blancos) |
 | `render_frontal.png` | Vista frontal estilo "clay render" (PLA gris mate) |
 | `generar_medallon.py` | Script paramétrico que genera el STL y el render |
 
@@ -20,6 +21,10 @@ Medallón en bajorrelieve imprimible en 3D con el esqueleto estilizado de un
 - Chaflán de 0,6 mm en la base para evitar la "pata de elefante".
 
 ## Impresión sugerida
+- **Dos colores con un solo cambio de filamento:** PLA negro hasta 3,0 mm y PLA
+  blanco desde ahí (pausa/M600 en la capa que empieza en Z = 3,0 mm). Con capa de
+  0,2 mm el cambio cae justo en una capa. Imprimiendo varios por cama, el
+  purgado se comparte entre todos.
 - Cara plana sobre la cama, sin soportes.
 - Capa de 0,12–0,16 mm (los relieves quedan más definidos), boquilla de 0,4 mm.
 - 3 perímetros, 15–20 % de relleno.
