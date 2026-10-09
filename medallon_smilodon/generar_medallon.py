@@ -50,6 +50,11 @@ TEXT_H = 1.2          # relieve de las letras
 TEXT_SPAN_DEG = 236   # arco que ocupa la leyenda superior
 FONT = FontProperties(family="DejaVu Sans", weight="bold")
 
+HANGER_HOLE_D = 5.0    # agujero para colgar (cordón, cadenita o argolla)
+HANGER_R = 6.5         # radio exterior de la oreja
+HANGER_OFFSET = 5.0    # centro del agujero por encima del borde exterior
+HANGER_TOP = RIM_TOP - 1.0  # un poco más baja que el borde (sin caras coplanares)
+
 SKEL_FIELD_R = 24.6
 COLOR_CHANGE_Z = BASE  # cambio de filamento: negro debajo, blanco encima   # el esqueleto debe caber dentro de este radio
 
@@ -275,6 +280,16 @@ def build_layers():
     return layers, info
 
 
+def hanger():
+    """Oreja para colgar sobre el borde superior: contorno y agujero (2D)."""
+    c = (0.0, R + HANGER_OFFSET)
+    lug = unary_union([Point(c).buffer(HANGER_R, 64),
+                       Polygon([(-11, R - 4.2), (11, R - 4.2), (0, c[1])])]).convex_hull
+    lug = lug.difference(Point(0, 0).buffer(RIM_IN + 0.8, 256))  # no invade la leyenda
+    hole = Point(c).buffer(HANGER_HOLE_D / 2, 64)
+    return lug, hole
+
+
 def rim_profile():
     """Perfil (r, z) del disco + borde, para revolucionar."""
     return [(0, 0), (R - CHAMFER_BOTTOM, 0), (R, CHAMFER_BOTTOM), (R, RIM_TOP - RIM_BEVEL),
@@ -295,6 +310,11 @@ def to_cross_section(geom):
 
 def build_mesh(layers):
     body = Manifold.revolve(CrossSection([np.array(rim_profile(), float)]), 360)
+    lug, hole = hanger()
+    foot = 0.4  # escalón inferior, igual que el chaflán del disco
+    body = body + to_cross_section(lug.buffer(-foot)).extrude(foot + 0.01)
+    body = body + to_cross_section(lug).extrude(HANGER_TOP - foot).translate((0, 0, foot))
+    body = body - to_cross_section(hole).extrude(RIM_TOP + 2).translate((0, 0, -1))
     eps = 0.05
     for geom, ztop in layers:
         geom = geom.simplify(0.01)
@@ -306,7 +326,7 @@ def build_mesh(layers):
 
 
 # ---------------------------------------------------------------- render
-def heightmap(layers, px=0.04, margin=6.0):
+def heightmap(layers, px=0.04, margin=14.0):
     n = int(round((DIAM + 2 * margin) / px))
     off = n / 2
 
@@ -323,15 +343,23 @@ def heightmap(layers, px=0.04, margin=6.0):
     inside = rr <= R
     h = np.where(inside, h, 0.0)
 
-    for geom, ztop in sorted(layers, key=lambda t: t[1]):
+    def raster(geom):
         img = Image.new("L", (n, n), 0)
         d = ImageDraw.Draw(img)
         for p in getattr(geom, "geoms", [geom]):
             d.polygon(to_px(p.exterior.coords), fill=255)
             for i in p.interiors:
                 d.polygon(to_px(i.coords), fill=0)
-        mask = np.asarray(img) > 127
-        h = np.where(mask, np.maximum(h, ztop), h)
+        return np.asarray(img) > 127
+
+    lug, hole = hanger()
+    lug_m, hole_m = raster(lug), raster(hole)
+    h = np.where(lug_m, np.maximum(h, HANGER_TOP), h)
+    h = np.where(hole_m, 0.0, h)
+    inside = (inside | lug_m) & ~hole_m
+
+    for geom, ztop in sorted(layers, key=lambda t: t[1]):
+        h = np.where(raster(geom), np.maximum(h, ztop), h)
     return h, inside, px
 
 

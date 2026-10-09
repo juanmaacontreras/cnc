@@ -18,6 +18,8 @@ Medallón en bajorrelieve imprimible en 3D con el esqueleto estilizado de un
   sans-serif bold, 1,2 mm de relieve.
 - Esqueleto en capas de 0,8 / 1,3 / 1,7 / 2,1 / 2,3 mm sobre el campo, para dar
   profundidad. Huesos de ≥ 0,9 mm de ancho, sin costillas finas.
+- Oreja superior con agujero de Ø 5 mm para colgar (cordón, cadenita o argolla).
+  Alto total con la oreja: 91,5 mm.
 - Chaflán de 0,6 mm en la base para evitar la "pata de elefante".
 
 ## Impresión sugerida
