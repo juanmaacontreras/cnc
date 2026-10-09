@@ -56,6 +56,12 @@ HANGER_OFFSET = 5.0    # centro del agujero por encima del borde exterior
 HANGER_TOP = RIM_TOP - 1.0  # un poco más baja que el borde (sin caras coplanares)
 
 SKEL_FIELD_R = 24.6
+# Versión con nombre de patrulla debajo del esqueleto
+NAME_CAP = 4.4         # altura de mayúsculas del nombre
+NAME_Y = -19.2         # centro vertical del nombre
+NAME_MAX_W = 27.0      # ancho máximo disponible en el campo a esa altura
+NAME_SKEL_R = 23.4     # radio del esqueleto cuando hay nombre
+NAME_SKEL_DY = 2.2     # desplazamiento hacia arriba del esqueleto
 COLOR_CHANGE_Z = BASE  # cambio de filamento: negro debajo, blanco encima   # el esqueleto debe caber dentro de este radio
 
 # Alturas de relieve (sobre el campo) para dar profundidad de bajorrelieve
@@ -247,8 +253,12 @@ def straight_text(text, cap, cy, xscale=1.0, tracking=0.0):
 
 
 # ---------------------------------------------------------------- composición
-def build_layers():
-    """Lista de (geometría 2D, altura superior absoluta)."""
+def build_layers(name=None):
+    """Lista de (geometría 2D, altura superior absoluta).
+
+    Si se pasa `name` (p. ej. el nombre de una patrulla), se escribe en el campo
+    central debajo del esqueleto, que se achica y sube un poco para dejarle lugar.
+    """
     layers = []
     ring = Point(0, 0).buffer(RING_R + RING_W / 2, 256).difference(
         Point(0, 0).buffer(RING_R - RING_W / 2, 256))
@@ -271,11 +281,18 @@ def build_layers():
     allg = unary_union(list(skel.values()))
     circ = minimum_bounding_circle(allg)
     cx, cy = circ.centroid.x, circ.centroid.y
-    scale = SKEL_FIELD_R / minimum_bounding_radius(allg)
+    field_r, dy = (SKEL_FIELD_R, 0.0) if name is None else (NAME_SKEL_R, NAME_SKEL_DY)
+    scale = field_r / minimum_bounding_radius(allg)
     for h, g in sorted(skel.items()):
         g = affinity.translate(g, -cx, -cy)
         g = affinity.scale(g, scale, scale, origin=(0, 0))
-        layers.append((g, BASE + h))
+        layers.append((affinity.translate(g, 0, dy), BASE + h))
+    if name:
+        label = straight_text(name.upper(), NAME_CAP, NAME_Y, 0.95, 0.45)
+        w = label.bounds[2] - label.bounds[0]
+        if w > NAME_MAX_W:  # nombres largos: se angostan para entrar en el campo
+            label = affinity.scale(label, NAME_MAX_W / w, 1)
+        layers.append((label, BASE + TEXT_H))
     info = dict(skeleton_scale=scale, legend_tracking=trk, legend_cap=cap)
     return layers, info
 

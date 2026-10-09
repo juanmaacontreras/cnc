@@ -37,3 +37,8 @@ pip install numpy shapely manifold3d trimesh matplotlib pillow scipy
 python3 generar_medallon.py
 ```
 Los parámetros (diámetro, alturas, texto, año) están al principio del script.
+
+## Medallas de patrulla
+`python3 generar_patrullas.py` genera en `patrullas/` una medalla por patrulla (el nombre va
+debajo del esqueleto), la placa `placa_6_medallas.3mf` para una cama de 256 × 256 mm y los
+renders. Instrucciones de impresión en [`patrullas/IMPRIMIR.md`](patrullas/IMPRIMIR.md).
