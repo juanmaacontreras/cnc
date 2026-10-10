@@ -4,8 +4,10 @@
 Salida en ./patrullas/:
   * medalla_<patrulla>.stl         – una malla por medalla
   * medallas_CC2_listo.3mf         – proyecto de ElegooSlicer para la Centauri Carbon 2:
-                                     las 6 medallas en la cama, configuración y cambio de color
-  * prueba_1_medalla_CC2.3mf       – lo mismo con una sola medalla, para probar antes
+                                     las 6 medallas, la configuración de config_cartel_elegoo.json
+                                     (la misma de una impresión que salió bien), torre de purga
+                                     y cambio a blanco en la capa 3,20 mm
+  * medallas_solo_modelo.3mf / placa_6_medallas.stl – la placa sin configuración
   * render_<patrulla>.png          – vista frontal en dos colores
   * render_placa.png               – vista superior de la placa completa
 
@@ -18,6 +20,8 @@ from pathlib import Path
 
 import numpy as np
 import trimesh
+from shapely.geometry import Polygon, box
+from shapely.ops import unary_union
 from PIL import Image
 
 import generar_medallon as gm
@@ -25,6 +29,10 @@ import generar_medallon as gm
 PATRULLAS = ["Chita", "Cóndor", "Tigre", "Pantera", "Zorro", "Lobo"]
 BED = 256.0     # cama de 256×256 (Bambu Lab A1 / P1 / X1, Orca, etc.)
 GAP = 4.0       # separación entre medallas (deja 4 mm a cada lado de la cama)
+SLICER_VERSION = "1.3.2.1"  # versión de ElegooSlicer con la que se hizo config_cartel_elegoo.json
+# Torre de purga entre las orejas de la fila de atrás. Con wipe_tower_x/y = (x, y) la torre
+# del cartel ocupó x-3.5…x+38.5, y-6…y+9.5 (con su brim).
+TOWER_XY = (148.0, 229.0)
 OUT = gm.OUT / "patrullas"
 
 
@@ -54,7 +62,8 @@ def layout(meshes):
 def write_3mf(path, meshes, names, settings=None, color_change_z=None):
     """Escribe la placa como 3MF.
 
-    Con `settings` (la configuración de cc2_project_settings.json) el archivo se guarda
+    Con `settings` (claves del slicer con su valor tal como aparece en el bloque de
+    configuración de un G-code de ElegooSlicer) el archivo se guarda
     como proyecto de ElegooSlicer: abre con impresora, proceso y filamentos cargados
     y, con `color_change_z`, el cambio al filamento 2 en la capa que termina a esa altura.
     Sin `settings` es un 3MF común que abre en cualquier slicer.
@@ -72,7 +81,7 @@ def write_3mf(path, meshes, names, settings=None, color_change_z=None):
                      f'{c[0]:.4f} {c[1]:.4f} {c[2]:.4f}" printable="1"/>')
     meta = '<metadata name="Title">Medallas patrullas - Museo de Cs. Naturales de La Plata 2026</metadata>'
     if settings is not None:
-        meta += ('<metadata name="Application">ElegooSlicer-1.5.3.5</metadata>'
+        meta += (f'<metadata name="Application">ElegooSlicer-{SLICER_VERSION}</metadata>'
                  '<metadata name="BambuStudio:3mfVersion">1</metadata>')
     model = ('<?xml version="1.0" encoding="UTF-8"?>\n'
              '<model unit="millimeter" xml:lang="es-AR" '
@@ -99,40 +108,13 @@ def write_3mf(path, meshes, names, settings=None, color_change_z=None):
                        json.dumps(settings, indent=4, ensure_ascii=False))
         if settings is not None and color_change_z is not None:
             # mismo formato que guarda ElegooSlicer (bbs_3mf.cpp): type 2 = cambio de filamento
-            colour = settings["filament_colour"][1]
+            colour = settings["filament_colour"].split(";")[1]
             z.writestr("Metadata/custom_gcode_per_layer.xml",
                        '<?xml version="1.0" encoding="utf-8"?>\n<custom_gcodes_per_layer><plate>'
                        '<plate_info id="1"/>'
                        f'<layer top_z="{color_change_z:g}" type="2" extruder="2" color="{colour}" '
                        'extra="" gcode="tool_change"/>'
                        '<mode value="MultiAsSingle"/></plate></custom_gcodes_per_layer>\n')
-
-
-def tandas(meshes):
-    """Tandas chicas y centradas (4 + 2), dentro de la zona que la CC2 mide al
-    empezar (bed_mesh_min 10,10 / bed_mesh_max 243,245 en su perfil)."""
-    by_name = dict(zip(PATRULLAS, meshes))
-    for fname, names in [("tanda_1_chita_condor_tigre_pantera", PATRULLAS[:4]),
-                         ("tanda_2_zorro_lobo", PATRULLAS[4:])]:
-        rows = (len(names) + 1) // 2
-        placed = []
-        for i, n in enumerate(names):
-            m = by_name[n].copy()
-            r, c = divmod(i, 2)
-            if r == 1:
-                m.apply_transform(np.diag([-1, -1, 1, 1]))  # oreja hacia afuera
-            b = m.bounds
-            x = BED / 2 + (c - 0.5) * (gm.DIAM + GAP)
-            y = BED / 2 if rows == 1 else BED / 2 + (1 if r == 0 else -1) * (gm.DIAM + GAP) / 2
-            if rows == 1:
-                y -= (b[0][1] + b[1][1]) / 2  # una sola fila: centrada por su caja
-            m.apply_translation([x, y, -b[0][2]])
-            placed.append(m)
-        lo = np.min([m.bounds[0] for m in placed], axis=0)
-        hi = np.max([m.bounds[1] for m in placed], axis=0)
-        assert lo[0] >= 10 and hi[0] <= 243 and lo[1] >= 10 and hi[1] <= 245, (fname, lo, hi)
-        write_3mf(OUT / f"{fname}.3mf", placed, names)
-        trimesh.util.concatenate(placed).export(OUT / f"{fname}.stl")
 
 
 def main():
@@ -155,19 +137,17 @@ def main():
     lo = np.min([m.bounds[0] for m in placed], axis=0)
     hi = np.max([m.bounds[1] for m in placed], axis=0)
     assert lo[0] >= 0 and lo[1] >= 0 and hi[0] <= BED and hi[1] <= BED, (lo, hi)
-    settings_file = OUT / "cc2_project_settings.json"
-    settings = json.loads(settings_file.read_text(encoding="utf-8")) if settings_file.exists() else None
+    settings = json.loads((OUT / "config_cartel_elegoo.json").read_text(encoding="utf-8"))
+    settings["wipe_tower_x"], settings["wipe_tower_y"] = (f"{v:g}" for v in TOWER_XY)
+    tower = box(TOWER_XY[0] - 3.5, TOWER_XY[1] - 6.0, TOWER_XY[0] + 38.5, TOWER_XY[1] + 9.5)
+    footprint = unary_union([Polygon(p) for m in placed
+                             for p in m.section([0, 0, 0.1], [0, 0, 1]).to_2D(to_2D=np.eye(4))[0].polygons_closed])
+    assert footprint.distance(tower) >= 1.0 and tower.bounds[3] <= BED, "la torre choca con una medalla"
     # cambio a blanco al empezar la capa que termina en BASE + 0,2 mm (capas de 0,2)
     write_3mf(OUT / "medallas_CC2_listo.3mf", placed, PATRULLAS, settings, gm.COLOR_CHANGE_Z + 0.2)
     trimesh.util.concatenate(placed).export(OUT / "placa_6_medallas.stl")  # las 6 en un solo STL
-    tandas(meshes)
     # solo geometría, sin configuración: para abrir con el perfil que elija cada uno
     write_3mf(OUT / "medallas_solo_modelo.3mf", placed, PATRULLAS)
-    # prueba: una sola medalla en el centro de la cama, con la misma configuración
-    test = meshes[0].copy()
-    lo_t, hi_t = test.bounds
-    test.apply_translation([BED / 2 - (lo_t[0] + hi_t[0]) / 2, BED / 2 - (lo_t[1] + hi_t[1]) / 2, -lo_t[2]])
-    write_3mf(OUT / "prueba_1_medalla_CC2.3mf", [test], PATRULLAS[:1], settings, gm.COLOR_CHANGE_Z + 0.2)
     print(f"placa: x {lo[0]:.1f}–{hi[0]:.1f}  y {lo[1]:.1f}–{hi[1]:.1f} mm (cama {BED:.0f})")
 
     # mosaico de la placa (vista superior) a partir de los renders individuales
