@@ -38,11 +38,11 @@ CHAMFER_BOTTOM = 0.6  # chaflán inferior (evita "pata de elefante")
 
 RIM_IN = 35.6         # radio interior del borde exterior
 RIM_TOP = BASE + 2.6  # altura del borde exterior
-RIM_BEVEL = 0.5
+RIM_BEVEL = 0.6
 
 RING_R = 26.6         # anillo interior que separa el texto del campo central
 RING_W = 1.3
-RING_H = 1.1
+RING_H = 1.2
 
 TEXT = "MUSEO DE CS. NATURALES DE LA PLATA"
 YEAR = "2026"
@@ -62,14 +62,14 @@ NAME_Y = -19.2         # centro vertical del nombre
 NAME_MAX_W = 27.0      # ancho máximo disponible en el campo a esa altura
 NAME_SKEL_R = 23.4     # radio del esqueleto cuando hay nombre
 NAME_SKEL_DY = 2.2     # desplazamiento hacia arriba del esqueleto
-COLOR_CHANGE_Z = BASE  # cambio de filamento: negro debajo, blanco encima   # el esqueleto debe caber dentro de este radio
+COLOR_CHANGE_Z = BASE  # cambio de filamento: negro debajo, blanco encima
 
 # Alturas de relieve (sobre el campo) para dar profundidad de bajorrelieve
 H_FAR = 0.8           # patas del lado lejano
-H_RIBS = 1.3          # caja torácica / núcleo de la columna
-H_SPINE = 1.7         # vértebras, escápula, pelvis
-H_NEAR = 2.1          # patas cercanas, cráneo
-H_SABER = 2.3         # colmillo
+H_RIBS = 1.2          # caja torácica / núcleo de la columna
+H_SPINE = 1.6         # vértebras, escápula, pelvis
+H_NEAR = 2.0          # patas cercanas, cráneo
+H_SABER = 2.2         # colmillo
 
 
 # ---------------------------------------------------------------- utilidades

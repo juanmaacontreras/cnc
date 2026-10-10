@@ -1,77 +1,47 @@
-# Medallas de patrulla – cómo imprimir
+# Medallas de patrulla – cómo imprimir (Elegoo Centauri Carbon 2 + CANVAS)
 
-Archivo: **`placa_6_medallas.3mf`**. Tiene las 6 medallas (Chita, Cóndor, Tigre, Pantera,
-Zorro, Lobo) ya acomodadas en una cama de 256 × 256 mm. También están los STL sueltos.
+Abrí **`medallas_CC2_listo.3mf`** con ElegooSlicer (Archivo → Abrir proyecto). Ya trae:
 
-## Configuración recomendada – Centauri Carbon 2, PLA, boquilla 0,4 (ElegooSlicer)
-Partí del perfil **0.20mm Standard @Elegoo CC2** y cambiá solo esto:
+- Impresora **Centauri Carbon 2 0.4** y proceso **0.20mm Standard** con los ajustes de abajo.
+- Dos filamentos **Elegoo PLA**: 1 = negro, 2 = blanco.
+- Las 6 medallas (Chita, Cóndor, Tigre, Pantera, Zorro, Lobo) acomodadas en la cama.
+- El **cambio a blanco en la capa 3.20 mm**: todo lo que está por encima de 3 mm
+  (esqueleto, textos, anillo, borde y oreja) sale blanco; el fondo y la base, negros.
 
-### Calidad
-| Parámetro | Valor | Por qué |
-|---|---|---|
-| Altura de capa / primera capa | 0,20 / 0,20 mm | el cambio de color cae justo en 3,0 mm |
-| Generador de paredes | Arachne | letras y huesos más prolijos |
-| Orden de paredes | Interior/Exterior/Interior | bordes nítidos sin perder adherencia |
-| Costura | Alineada | |
-| Compensación pata de elefante | 0,15 mm | |
-| Patrón superior | Monotónico | |
+## Antes de mandar (1 minuto)
+1. Si pregunta si cargar la configuración del proyecto, respondé que **sí**.
+2. En los filamentos, que el 1 sea el negro y el 2 el blanco, igual que las ranuras del CANVAS.
+3. Elegí el tipo de placa que tengas puesta (PEI texturada o lisa; la temperatura es la misma).
+4. **Laminar** y mirar la vista previa: barra de capas abajo de 3.20 todo negro, desde 3.20
+   todo blanco, y el planchado sobre las caras superiores.
+   Si el cambio de color no aparece, agregalo a mano: clic derecho en la capa 3.20 de la
+   barra de capas → Cambiar filamento → Filamento 2.
 
-### Planchado (ironing)
-| Parámetro | Valor |
+## Ajustes cargados (sobre 0.20mm Standard @Elegoo CC2)
+| | Valor |
 |---|---|
-| Tipo de planchado | **Superficies superiores** (no "solo la superior", porque hay caras a varias alturas) |
-| Patrón | Rectilíneo |
-| Flujo | 10 % |
-| Espaciado | 0,12 mm |
-| Velocidad | 30 mm/s |
-| Margen (inset) | 0,2 mm (no aplasta los bordes de las letras) |
-
-El fondo negro se plancha en la última capa negra, antes del cambio, y las caras blancas se planchan al final de cada relieve.
-
-### Resistencia
-| Parámetro | Valor |
-|---|---|
-| Paredes | 3 |
+| Capa / primera capa | 0,20 / 0,20 mm (todas las alturas del diseño son múltiplos de 0,2) |
+| Paredes | 3, generador Arachne, orden interior-exterior-interior |
 | Capas superiores / inferiores | 5 / 4 |
 | Relleno | 15 % giroide |
-| Soportes | No |
-| Brim | No (si una esquina se levanta, brim exterior de 3 mm) |
-
-### Velocidad
-| Parámetro | Valor |
-|---|---|
-| Pared exterior | 100 mm/s |
-| Superficie superior | 80 mm/s |
+| Superficie superior | monotónico, 100 mm/s |
+| **Planchado** | todas las caras superiores, flujo 10 %, separación 0,12 mm, 30 mm/s, margen 0,15 mm |
+| Pared exterior | 100 mm/s, aceleración 3000 |
 | Primera capa | 40 mm/s |
-| El resto | lo que trae el perfil |
+| Pata de elefante | 0,15 mm |
+| Evitar cruzar paredes | sí |
+| Soportes / brim / falda | no / no / no |
+| Torre de purga | no (la CC2 purga el cambio de filamento por su cuenta) |
+| Purga negro → blanco | 900 mm³ (valor de Elegoo para la CC2) |
 
-### Filamento (PLA, igual para negro y blanco)
-| Parámetro | Valor |
-|---|---|
-| Boquilla | 215 °C (primera capa 220 °C) |
-| Cama | 55 °C (primera capa 60 °C) |
-| Ventilador de capa | 100 % desde la capa 3 |
-| Ratio de flujo | el que tengas calibrado (si no, 0,98) |
-| Purga negro → blanco | **subila a ~600 mm³** (en Volúmenes de purga). Es un solo cambio y evita que la primera capa blanca salga grisácea |
+## Filamento (perfil Elegoo PLA @ECC2, sin cambios)
+Boquilla 210 °C, cama 60 °C, ventilador 50–100 %, ratio de flujo 0,98, presión avance 0,04.
 
-### Antes de imprimir
-- Limpiá la placa PEI con agua y detergente: es lo que más riesgo saca.
-- Con PLA en impresora cerrada, dejá la tapa superior levantada o la puerta entreabierta para que no haya obstrucción por calor.
-- Revisá en la vista previa: el fondo negro, desde la capa 3.20 todo blanco, y el planchado en verde/azul sobre las caras superiores.
+## Para que no falle
+- Limpiá la placa con agua y detergente antes de imprimir.
+- Con PLA, dejá la tapa superior levantada o la puerta entreabierta.
+- Material aproximado: unos 85 g (~70 g negro, ~15 g blanco). El slicer da el valor exacto.
 
-## Cambio de color en Elegoo Centauri Carbon 2 + CANVAS (ElegooSlicer)
-Un solo cambio de filamento para las 6 medallas:
-1. Abrí `placa_6_medallas.3mf`, elegí la impresora **Centauri Carbon 2** y cargá dos
-   filamentos: **1 = negro** y **2 = blanco**, que coincidan con las ranuras del CANVAS.
-2. Dejá todas las medallas en el filamento 1 (negro) y laminá.
-3. En la barra vertical de capas, a la derecha, subí hasta la capa que dice **3.20**
-   (la primera por encima de 3,0 mm). Hacé clic derecho o tocá el **+** y elegí
-   **Cambiar filamento → Filamento 2 (blanco)**.
-4. Volvé a laminar y revisá en la vista previa que el esqueleto, los textos y el borde
-   salgan blancos y el fondo negro.
-5. Si el slicer agrega una torre de purga, movela adelante o atrás de las medallas.
-   Hay unos 33 mm libres en cada lado.
-
-Sin CANVAS: en el paso 3 elegí **Agregar pausa** y cambiá el filamento a mano.
-
-Material aproximado: unos 85 g en total (~70 g negro, ~15 g blanco). El slicer da el valor exacto.
+## Regenerar
+`armar_config_cc2.py` arma `cc2_project_settings.json` a partir de los perfiles oficiales de
+ElegooSlicer; `generar_patrullas.py` genera las medallas y el proyecto.

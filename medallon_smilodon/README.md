@@ -40,5 +40,5 @@ Los parámetros (diámetro, alturas, texto, año) están al principio del script
 
 ## Medallas de patrulla
 `python3 generar_patrullas.py` genera en `patrullas/` una medalla por patrulla (el nombre va
-debajo del esqueleto), la placa `placa_6_medallas.3mf` para una cama de 256 × 256 mm y los
+debajo del esqueleto), el proyecto `medallas_CC2_listo.3mf` para la Centauri Carbon 2 (configuración y cambio de color incluidos) y los
 renders. Instrucciones de impresión en [`patrullas/IMPRIMIR.md`](patrullas/IMPRIMIR.md).
