@@ -29,7 +29,8 @@ PROCESS_OVERRIDES = {
     "bottom_shell_layers": "4",
     "top_surface_pattern": "monotonic",
     "seam_position": "aligned",
-    "elefant_foot_compensation": "0.15",
+    # la base ya tiene un chaflán de 0,6 mm: sin compensación extra, la primera capa apoya entera
+    "elefant_foot_compensation": "0",
     "reduce_crossing_wall": "1",
     # planchado de todas las caras superiores (fondo, letras, huesos, borde)
     "ironing_type": "top",
@@ -44,14 +45,24 @@ PROCESS_OVERRIDES = {
     # velocidades más tranquilas en lo que se ve
     "outer_wall_speed": "100",
     "top_surface_speed": "100",
-    "initial_layer_speed": "40",
+    # primera capa lenta entera (paredes y relleno): el relleno venía a 105 mm/s
+    "initial_layer_speed": "35",
+    "initial_layer_infill_speed": "45",
     "outer_wall_acceleration": "3000",
-    # sin soportes, brim ni falda (las medallas llegan a 2 mm del borde de la cama)
+    # brim fino alrededor de cada medalla, con separación para sacarlo con la uña
     "enable_support": "0",
-    "brim_type": "no_brim",
+    "brim_type": "outer_only",
+    "brim_width": "3",
+    "brim_object_gap": "0.1",
     "skirt_loops": "0",
     # la CC2 purga el cambio de filamento por su cuenta (purge_in_prime_tower = 0)
     "enable_prime_tower": "0",
+}
+
+# Primera capa de cama más caliente, en placa texturada o lisa
+FILAMENT_OVERRIDES = {
+    "textured_plate_temp_initial_layer": "65",
+    "hot_plate_temp_initial_layer": "65",
 }
 
 SKIP = {"name", "type", "inherits", "from", "setting_id", "instantiation", "renamed_from",
@@ -96,6 +107,8 @@ def main(root):
         # los valores de filamento van uno por filamento (negro, blanco)
         cfg[k] = (v * len(COLOURS)) if isinstance(v, list) and len(v) == 1 else v
     cfg.update(PROCESS_OVERRIDES)
+    for k, v in FILAMENT_OVERRIDES.items():
+        cfg[k] = [v] * len(COLOURS)
 
     n = len(COLOURS)
     cfg.update({
@@ -104,7 +117,8 @@ def main(root):
         "filament_settings_id": [FILAMENT] * n,
         "filament_ids": [filament_id] * n,
         "inherits_group": [""] * (n + 2),
-        "different_settings_to_system": [";".join(sorted(PROCESS_OVERRIDES))] + [""] * (n + 1),
+        "different_settings_to_system": ([";".join(sorted(PROCESS_OVERRIDES))]
+                                         + [";".join(sorted(FILAMENT_OVERRIDES))] * n + [""]),
         "filament_colour": COLOURS,
         "filament_self_index": [str(i + 1) for i in range(n)],
         "filament_extruder_variant": ["Direct Drive Standard"] * n,

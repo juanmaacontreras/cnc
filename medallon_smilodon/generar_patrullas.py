@@ -5,6 +5,7 @@ Salida en ./patrullas/:
   * medalla_<patrulla>.stl         – una malla por medalla
   * medallas_CC2_listo.3mf         – proyecto de ElegooSlicer para la Centauri Carbon 2:
                                      las 6 medallas en la cama, configuración y cambio de color
+  * prueba_1_medalla_CC2.3mf       – lo mismo con una sola medalla, para probar antes
   * render_<patrulla>.png          – vista frontal en dos colores
   * render_placa.png               – vista superior de la placa completa
 
@@ -130,6 +131,11 @@ def main():
     settings = json.loads(settings_file.read_text(encoding="utf-8")) if settings_file.exists() else None
     # cambio a blanco al empezar la capa que termina en BASE + 0,2 mm (capas de 0,2)
     write_3mf(OUT / "medallas_CC2_listo.3mf", placed, PATRULLAS, settings, gm.COLOR_CHANGE_Z + 0.2)
+    # prueba: una sola medalla en el centro de la cama, con la misma configuración
+    test = meshes[0].copy()
+    lo_t, hi_t = test.bounds
+    test.apply_translation([BED / 2 - (lo_t[0] + hi_t[0]) / 2, BED / 2 - (lo_t[1] + hi_t[1]) / 2, -lo_t[2]])
+    write_3mf(OUT / "prueba_1_medalla_CC2.3mf", [test], PATRULLAS[:1], settings, gm.COLOR_CHANGE_Z + 0.2)
     print(f"placa: x {lo[0]:.1f}–{hi[0]:.1f}  y {lo[1]:.1f}–{hi[1]:.1f} mm (cama {BED:.0f})")
 
     # mosaico de la placa (vista superior) a partir de los renders individuales

@@ -35,8 +35,8 @@
     "bridge_no_support": "0",
     "bridge_speed": "50",
     "brim_object_gap": "0.1",
-    "brim_type": "no_brim",
-    "brim_width": "5",
+    "brim_type": "outer_only",
+    "brim_width": "3",
     "chamber_temperatures": [
         "0",
         "0"
@@ -73,9 +73,9 @@
     "detect_overhang_wall": "1",
     "detect_thin_wall": "0",
     "different_settings_to_system": [
-        "bottom_shell_layers;brim_type;elefant_foot_compensation;enable_prime_tower;enable_support;initial_layer_speed;ironing_flow;ironing_inset;ironing_pattern;ironing_spacing;ironing_speed;ironing_type;outer_wall_acceleration;outer_wall_speed;reduce_crossing_wall;seam_position;skirt_loops;sparse_infill_density;sparse_infill_pattern;top_shell_layers;top_surface_pattern;top_surface_speed;wall_generator;wall_loops;wall_sequence",
-        "",
-        "",
+        "bottom_shell_layers;brim_object_gap;brim_type;brim_width;elefant_foot_compensation;enable_prime_tower;enable_support;initial_layer_infill_speed;initial_layer_speed;ironing_flow;ironing_inset;ironing_pattern;ironing_spacing;ironing_speed;ironing_type;outer_wall_acceleration;outer_wall_speed;reduce_crossing_wall;seam_position;skirt_loops;sparse_infill_density;sparse_infill_pattern;top_shell_layers;top_surface_pattern;top_surface_speed;wall_generator;wall_loops;wall_sequence",
+        "hot_plate_temp_initial_layer;textured_plate_temp_initial_layer",
+        "hot_plate_temp_initial_layer;textured_plate_temp_initial_layer",
         ""
     ],
     "disable_m73": "0",
@@ -84,7 +84,7 @@
         "70",
         "70"
     ],
-    "elefant_foot_compensation": "0.15",
+    "elefant_foot_compensation": "0",
     "enable_arc_fitting": "0",
     "enable_filament_ramming": "0",
     "enable_pressure_advance": [
@@ -271,8 +271,8 @@
         "60"
     ],
     "hot_plate_temp_initial_layer": [
-        "60",
-        "60"
+        "65",
+        "65"
     ],
     "independent_support_layer_height": "0",
     "infill_anchor": "400%",
@@ -287,10 +287,10 @@
         ""
     ],
     "initial_layer_acceleration": "500",
-    "initial_layer_infill_speed": "105",
+    "initial_layer_infill_speed": "45",
     "initial_layer_line_width": "0.5",
     "initial_layer_print_height": "0.2",
-    "initial_layer_speed": "40",
+    "initial_layer_speed": "35",
     "inner_wall_acceleration": "0",
     "inner_wall_line_width": "0.45",
     "inner_wall_speed": "200",
@@ -558,8 +558,8 @@
         "60"
     ],
     "textured_plate_temp_initial_layer": [
-        "60",
-        "60"
+        "65",
+        "65"
     ],
     "thumbnails": [
         "144x144"
