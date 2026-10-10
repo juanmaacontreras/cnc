@@ -131,6 +131,8 @@ def main():
     settings = json.loads(settings_file.read_text(encoding="utf-8")) if settings_file.exists() else None
     # cambio a blanco al empezar la capa que termina en BASE + 0,2 mm (capas de 0,2)
     write_3mf(OUT / "medallas_CC2_listo.3mf", placed, PATRULLAS, settings, gm.COLOR_CHANGE_Z + 0.2)
+    # solo geometría, sin configuración: para abrir con el perfil que elija cada uno
+    write_3mf(OUT / "medallas_solo_modelo.3mf", placed, PATRULLAS)
     # prueba: una sola medalla en el centro de la cama, con la misma configuración
     test = meshes[0].copy()
     lo_t, hi_t = test.bounds
