@@ -3,17 +3,61 @@
 Archivo: **`placa_6_medallas.3mf`**. Tiene las 6 medallas (Chita, Cóndor, Tigre, Pantera,
 Zorro, Lobo) ya acomodadas en una cama de 256 × 256 mm. También están los STL sueltos.
 
-## Configuración recomendada (PLA, boquilla 0,4)
+## Configuración recomendada – Centauri Carbon 2, PLA, boquilla 0,4 (ElegooSlicer)
+Partí del perfil **0.20mm Standard @Elegoo CC2** y cambiá solo esto:
+
+### Calidad
+| Parámetro | Valor | Por qué |
+|---|---|---|
+| Altura de capa / primera capa | 0,20 / 0,20 mm | el cambio de color cae justo en 3,0 mm |
+| Generador de paredes | Arachne | letras y huesos más prolijos |
+| Orden de paredes | Interior/Exterior/Interior | bordes nítidos sin perder adherencia |
+| Costura | Alineada | |
+| Compensación pata de elefante | 0,15 mm | |
+| Patrón superior | Monotónico | |
+
+### Planchado (ironing)
 | Parámetro | Valor |
 |---|---|
-| Altura de capa | **0,20 mm** (primera capa también 0,20) |
+| Tipo de planchado | **Superficies superiores** (no "solo la superior", porque hay caras a varias alturas) |
+| Patrón | Rectilíneo |
+| Flujo | 10 % |
+| Espaciado | 0,12 mm |
+| Velocidad | 30 mm/s |
+| Margen (inset) | 0,2 mm (no aplasta los bordes de las letras) |
+
+El fondo negro se plancha en la última capa negra, antes del cambio, y las caras blancas se planchan al final de cada relieve.
+
+### Resistencia
+| Parámetro | Valor |
+|---|---|
 | Paredes | 3 |
 | Capas superiores / inferiores | 5 / 4 |
 | Relleno | 15 % giroide |
 | Soportes | No |
-| Brim | No (si se levanta una esquina, brim de 3 mm) |
-| Velocidad | perfil "Standard" del slicer |
-| Orientación | cara plana sobre la cama, tal como viene |
+| Brim | No (si una esquina se levanta, brim exterior de 3 mm) |
+
+### Velocidad
+| Parámetro | Valor |
+|---|---|
+| Pared exterior | 100 mm/s |
+| Superficie superior | 80 mm/s |
+| Primera capa | 40 mm/s |
+| El resto | lo que trae el perfil |
+
+### Filamento (PLA, igual para negro y blanco)
+| Parámetro | Valor |
+|---|---|
+| Boquilla | 215 °C (primera capa 220 °C) |
+| Cama | 55 °C (primera capa 60 °C) |
+| Ventilador de capa | 100 % desde la capa 3 |
+| Ratio de flujo | el que tengas calibrado (si no, 0,98) |
+| Purga negro → blanco | **subila a ~600 mm³** (en Volúmenes de purga). Es un solo cambio y evita que la primera capa blanca salga grisácea |
+
+### Antes de imprimir
+- Limpiá la placa PEI con agua y detergente: es lo que más riesgo saca.
+- Con PLA en impresora cerrada, dejá la tapa superior levantada o la puerta entreabierta para que no haya obstrucción por calor.
+- Revisá en la vista previa: el fondo negro, desde la capa 3.20 todo blanco, y el planchado en verde/azul sobre las caras superiores.
 
 ## Cambio de color en Elegoo Centauri Carbon 2 + CANVAS (ElegooSlicer)
 Un solo cambio de filamento para las 6 medallas:
