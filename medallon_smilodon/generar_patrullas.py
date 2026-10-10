@@ -108,6 +108,33 @@ def write_3mf(path, meshes, names, settings=None, color_change_z=None):
                        '<mode value="MultiAsSingle"/></plate></custom_gcodes_per_layer>\n')
 
 
+def tandas(meshes):
+    """Tandas chicas y centradas (4 + 2), dentro de la zona que la CC2 mide al
+    empezar (bed_mesh_min 10,10 / bed_mesh_max 243,245 en su perfil)."""
+    by_name = dict(zip(PATRULLAS, meshes))
+    for fname, names in [("tanda_1_chita_condor_tigre_pantera", PATRULLAS[:4]),
+                         ("tanda_2_zorro_lobo", PATRULLAS[4:])]:
+        rows = (len(names) + 1) // 2
+        placed = []
+        for i, n in enumerate(names):
+            m = by_name[n].copy()
+            r, c = divmod(i, 2)
+            if r == 1:
+                m.apply_transform(np.diag([-1, -1, 1, 1]))  # oreja hacia afuera
+            b = m.bounds
+            x = BED / 2 + (c - 0.5) * (gm.DIAM + GAP)
+            y = BED / 2 if rows == 1 else BED / 2 + (1 if r == 0 else -1) * (gm.DIAM + GAP) / 2
+            if rows == 1:
+                y -= (b[0][1] + b[1][1]) / 2  # una sola fila: centrada por su caja
+            m.apply_translation([x, y, -b[0][2]])
+            placed.append(m)
+        lo = np.min([m.bounds[0] for m in placed], axis=0)
+        hi = np.max([m.bounds[1] for m in placed], axis=0)
+        assert lo[0] >= 10 and hi[0] <= 243 and lo[1] >= 10 and hi[1] <= 245, (fname, lo, hi)
+        write_3mf(OUT / f"{fname}.3mf", placed, names)
+        trimesh.util.concatenate(placed).export(OUT / f"{fname}.stl")
+
+
 def main():
     OUT.mkdir(exist_ok=True)
     meshes, renders, masks = [], [], []
@@ -133,6 +160,7 @@ def main():
     # cambio a blanco al empezar la capa que termina en BASE + 0,2 mm (capas de 0,2)
     write_3mf(OUT / "medallas_CC2_listo.3mf", placed, PATRULLAS, settings, gm.COLOR_CHANGE_Z + 0.2)
     trimesh.util.concatenate(placed).export(OUT / "placa_6_medallas.stl")  # las 6 en un solo STL
+    tandas(meshes)
     # solo geometría, sin configuración: para abrir con el perfil que elija cada uno
     write_3mf(OUT / "medallas_solo_modelo.3mf", placed, PATRULLAS)
     # prueba: una sola medalla en el centro de la cama, con la misma configuración
